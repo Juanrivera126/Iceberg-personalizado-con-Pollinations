@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Generador de Iceberg Pro v2.4 (Temas Avanzados)</title>
+  <style>
+    /* --- CSS VARIABLES & BASE --- */
+    :root {
+        --bg-color-1: #0f0c29;
+        --bg-color-2: #302b63;
+        --accent-color: #24243e;
+        --accent-color-hover: #7e57c2;
+        --text-color: #ffffff;
+        --overlay-bg: rgba(0,0,0,0.7);
+        --entry-bg: rgba(255,255,255,0.08);
+        --entry-hover-bg: rgba(255,255,255,0.15);
+        --panel-bg: rgba(0,0,0,0.6);
+        --level-bg: rgba(30,30,50,0.8);
+        --border-color: rgba(255,255,255,0.1);
+    }
+
+    html { min-height: 100%; box-sizing: border-box; }
+    *, *:before, *:after { box-sizing: inherit; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      /* Background se inyecta via JS para asegurar actualización */
+      background: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%); 
+      background-attachment: fixed;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text-color);
+      text-align: center;
+      min-height: 100vh;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      transition: color 0.5s ease;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      margin-bottom: 20px;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      font-weight: 800;
+      line-height: 1.2;
+      padding: 0 10px;
+      letter-spacing: -1px;
+    }
+
+    /* --- INPUT AREA --- */
+    .input-area {
+      margin: 20px auto;
+      width: 95%;
+      max-width: 700px;
+      background: var(--entry-bg);
+      padding: 25px;
+      border-radius: 16px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      border: 1px solid var(--border-color);
+      transition: border-color 0.5s ease;
+    }
+
+    .input-row { display: flex; gap: 15px; flex-wrap: wrap; }
+    .input-row > div { flex: 1; min-width: 200px; }
+
+    .input-group {
+        display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%;
+    }
+
+    .input-group label {
+        font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;
+    }
+
+    .input-area input[type="text"],
+    .input-area select {
+      width: 100%; padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px; font-size: 1rem;
+      background: rgba(0,0,0,0.4); color: var(--text-color);
+      transition: border 0.3s, background 0.3s;
+    }
+    
+    .input-area input:focus, .input-area select:focus {
+        outline: none; border-color: var(--accent-color);
+        background: rgba(0,0,0,0.6);
+    }
+    
+    option { background: #111; color: white; }
+
+    /* Buttons */
+    .input-area button {
+      background: var(--accent-color);
+      color: white; /* Siempre blanco para contraste en botones primarios */
+      border: none; padding: 15px 25px; border-radius: 8px;
+      cursor: pointer; font-size: 1.1rem; font-weight: bold;
+      transition: all 0.2s; margin-top: 5px; width: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .input-area button:hover { 
+        filter: brightness(1.2); 
+        transform: translateY(-2px); 
+    }
+
+    /* Palette Button Specifics */
+    .input-area button.secondary-btn {
+        background: transparent;
+        font-size: 0.95rem;
+        padding: 12px;
+        border: 2px dashed var(--border-color);
+        color: var(--text-color);
+        opacity: 0.8;
+    }
+    .input-area button.secondary-btn:hover { 
+        background: var(--entry-hover-bg); 
+        opacity: 1; 
+        border-color: var(--accent-color);
+        border-style: solid;
+    }
+
+    /* --- CHARTS & ENTRIES --- */
+    .iceberg-chart {
+      margin: 40px auto; width: 100%; max-width: 900px;
+      text-align: left; display: none; padding-bottom: 50px;
+    }
+
+    .level {
+      margin-bottom: 25px; padding: 20px;
+      border-radius: 12px; background: var(--level-bg);
+      border: 1px solid var(--border-color);
+      position: relative; overflow: visible;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    /* Barra lateral de nivel con color de acento */
+    .level::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+        background: var(--accent-color);
+        border-radius: 6px 0 0 6px;
+        filter: brightness(1.5); /* Hacerlo un poco más brillante */
+    }
+
+    .level-title {
+      font-size: clamp(1.2rem, 4vw, 1.5rem); margin: 0 0 15px 10px;
+      font-weight: 800; display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .level-desc-tag {
+        font-size: 0.75rem; opacity: 0.8; font-weight: normal; 
+        background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .entries {
+      list-style: none; padding: 0; margin: 0;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;
+    }
+
+    .entries li.entry-trigger {
+      background: var(--entry-bg); padding: 15px; border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
+      border: 1px solid transparent; display: flex; align-items: center; justify-content: space-between;
+      font-weight: 500;
+    }
+    .entries li.entry-trigger:hover {
+      background: var(--entry-hover-bg); border-color: var(--accent-color);
+      transform: translateX(3px);
+    }
+    .entries li.entry-trigger::after { content: '+'; font-weight: bold; opacity: 0.6; }
+    .entries li.entry-trigger.open::after { content: '-'; }
+
+    /* --- PANEL CONTENT --- */
+    .panel-wrapper { grid-column: 1 / -1; padding: 0; margin: 0; }
+
+    .panel-content {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.6s cubic-bezier(0, 1, 0, 1);
+      background: rgba(0,0,0,0.2);
+      border-radius: 0 0 8px 8px; margin-top: -8px; margin-bottom: 12px;
+      border: 1px solid var(--border-color); border-top: none;
+    }
+    .panel-content.active { max-height: 3000px; padding: 20px; transition: max-height 0.8s ease-in-out; }
+
+    .content-layout { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+    .image-section { flex: 1 1 300px; width: 100%; max-width: 450px; }
+    .text-section { flex: 1 1 300px; min-width: 50%; text-align: left; line-height: 1.6; font-size: 0.95rem; }
+
+    .panel-content img {
+      width: 100%; height: auto; border-radius: 8px;
+      cursor: zoom-in; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border: 1px solid var(--border-color);
+    }
+
+    h3 { 
+        color: var(--accent-color); filter: brightness(1.3);
+        border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 0;
+    }
+    strong { color: var(--accent-color); filter: brightness(1.3); }
+
+    /* --- LOADING & MODAL & EXPORT --- */
+    .loading { display: none; margin: 30px auto; text-align: center; }
+    .loading-spinner {
+      border: 4px solid rgba(255,255,255,0.1); border-radius: 50%;
+      border-top: 4px solid var(--accent-color); width: 50px; height: 50px;
+      animation: spin 1s linear infinite; margin: 0 auto 15px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center;
+      padding: 20px; opacity: 0; transition: opacity 0.3s;
+    }
+    .modal.active { display: flex; opacity: 1; }
+    .modal img { max-width: 100%; max-height: 90vh; object-fit: contain; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+    .modal-close { position: absolute; top: 15px; right: 20px; color: white; font-size: 40px; cursor: pointer; }
+
+    .export-btn { 
+        display: none; background: #2e7d32; color: white; border: none; padding: 15px 30px; 
+        border-radius: 50px; cursor: pointer; font-size: 1rem; margin: 30px auto; 
+        font-weight: bold; width: 80%; max-width: 300px;
+        box-shadow: 0 0 20px rgba(46, 125, 50, 0.4);
+    }
+    .export-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(46, 125, 50, 0.6); }
+
+    .controls-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 10px; }
+    .controls-box input { width: 100%; margin-bottom: 5px; }
+
+    /* --- MOBILE OPTIMIZATIONS --- */
+    @media (max-width: 600px) {
+        .container { padding: 10px; }
+        .level { padding: 15px 10px; }
+        .entries { grid-template-columns: 1fr; }
+        .content-layout { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Generador de Iceberg Pro</h1>
+    
+    <div class="input-area">
+      <div class="input-group">
+        <label for="themeInput">Tema Central</label>
+        <div style="display: flex; width: 100%; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="themeInput" placeholder="Ej: Teoría de Internet Muerta, Biología Marina..." style="flex: 1; min-width: 200px;">
+            <div class="api-key-container" style="display: flex; gap: 5px; flex: 1; min-width: 280px;">
+                <input type="password" id="apiKeyInput" placeholder="API Key (plln_sk_...)" style="flex: 1;">
+                <button id="getApiKeyBtn" title="Obtener API Key automáticamente" style="width: auto; padding: 10px 15px; margin: 0; font-size: 0.9rem; white-space: nowrap;">
+                    🔑 Obtener
+                </button>
+            </div>
+        </div>
+      </div>
+      
+      <div class="input-row">
+          <div class="input-group">
+            <label for="styleSelect">Estilo Visual</label>
+            <select id="styleSelect"></select>
+          </div>
+
+          <div class="input-group">
+            <label for="textModelSelect">IA de Texto</label>
+            <select id="textModelSelect">
+                <option value="gemini-search">Gemini 2.5 (Google Search)</option>
+                <option value="openai">GPT-5 Nano</option>
+                <option value="gemini">Gemini 3 Flash</option>
+                <option value="deepseek">DeepSeek V3.2</option>
+                <option value="claude">Claude Haiku 4.5</option>
+                <option value="perplexity-fast">Perplexity Sonar</option>
+				<option value="openai-large">GPT 5.2</option>
+				<option value="gemini-large">Gemini 3 Pro</option>
+				
+            </select>
+          </div>
+      </div>
+
+      <div class="input-row">
+          <div class="input-group">
+            <label for="modelSelect">IA de Imagen</label>
+            <select id="modelSelect">
+                <option value="flux" selected>Flux</option>
+                <option value="zimage">Z Image</option>
+                <option value="gptimage">GPT Image</option>
+				<option value="kontext">Kontext</option>
+				<option value="nanobanana">Nano Banana</option>
+				<option value="seedream">Seedream 4.0</option>
+				<option value="gptimage">GPT Image</option>
+				<option value="seedream-pr">Seedream 4.5</option>
+				<option value="nanobanana-pro">Nano Banana Pro</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="levelSelect">Profundidad</label>
+            <select id="levelSelect">
+                <option value="3">3 Niveles (Rápido)</option>
+                <option value="4">4 Niveles (Estándar)</option>
+                <option value="5" selected>5 Niveles (Completo)</option>
+            </select>
+          </div>
+      </div>
+      
+      <button type="button" id="paletteBtn" class="secondary-btn">🎨 Cambiar Paleta de Colores (Sorpréndeme)</button>
+      <button id="generateBtn">🔮 Generar Iceberg</button>
+    </div>
+    
+    <div class="loading" id="loadingIndicator">
+      <div class="loading-spinner"></div>
+      <p id="loadingText">Iniciando análisis del tema...</p>
+      <div class="progress-text" id="progressText">0% completado</div>
+    </div>
+    
+    <div class="iceberg-chart" id="icebergChart"></div>
+    
+    <button class="export-btn" id="exportBtn">📥 Descargar Iceberg HTML</button>
+  </div>
+
+  <div class="modal" id="imageModal">
+    <span class="modal-close">&times;</span>
+    <img src="" alt="" id="modalImage">
+  </div>
+
+  <script>
+    // --- VARIABLES & SELECTORES ---
+    const themeInput = document.getElementById('themeInput');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const getApiKeyBtn = document.getElementById('getApiKeyBtn');
+    const styleSelect = document.getElementById('styleSelect');
+    const textModelSelect = document.getElementById('textModelSelect');
+    const modelSelect = document.getElementById('modelSelect');
+    const levelSelect = document.getElementById('levelSelect');
+    const generateBtn = document.getElementById('generateBtn');
+    const paletteBtn = document.getElementById('paletteBtn'); 
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const loadingText = document.getElementById('loadingText');
+    const progressText = document.getElementById('progressText');
+    const icebergChart = document.getElementById('icebergChart');
+    const exportBtn = document.getElementById('exportBtn');
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeBtn = document.querySelector('.modal-close');
+    
+    const levelNames = [ "Nivel 1: La Superficie", "Nivel 2: Aguas Poco Profundas", "Nivel 3: La Zona de Penumbra", "Nivel 4: El Abismo", "Nivel 5: El Vacío Insondable" ];
+    const difficultyDescriptions = [ "Cultura pop, memes, hechos oficiales.", "Datos curiosos, trivia técnica.", "Rumores, conspiraciones leves.", "Archivos perdidos, incidentes oscuros.", "Horror cósmico, metafísica." ];
+    const imageStyles = [ "Cinemático Fotorrealista", "Arte Conceptual Digital", "Horror Análogo (VHS)", "Ilustración Científica Vintage", "Cyberpunk Neón", "Pintura al Óleo Oscura", "Surrealismo Onírico", "Render 3D Hiperrealista", "Estilo Anime Dark Fantasy", "Pixel Art Retro", "Estilo Lovecraftiano" ];
+
+    // --- MOTOR DE TEMAS AVANZADO (NUEVA LÓGICA) ---
+    function getRandomTheme() {
+        const themes = [
+            {
+                name: "Océano Profundo",
+                bg1: "#0f2027", bg2: "#203a43", 
+                accent: "#2c5364", text: "#e0f7fa"
+            },
+            {
+                name: "Vaporwave Neon",
+                bg1: "#2a0845", bg2: "#6441a5", 
+                accent: "#f538a0", text: "#ffffff" // Pink accent
+            },
+            {
+                name: "Matrix Terminal",
+                bg1: "#000000", bg2: "#0a1f0a", 
+                accent: "#00ff41", text: "#ccffcc"
+            },
+            {
+                name: "Horror Sangriento",
+                bg1: "#1a0505", bg2: "#380000", 
+                accent: "#8a0303", text: "#ffe6e6"
+            },
+            {
+                name: "Lovecraft Void",
+                bg1: "#0a0a0a", bg2: "#1c1c1c", 
+                accent: "#4b0082", text: "#dcdcdc" // Indigo accent
+            },
+            {
+                name: "Atardecer Dorado",
+                bg1: "#3e1e1e", bg2: "#68321a", 
+                accent: "#d4af37", text: "#fff8dc"
+            },
+            {
+                name: "Toxic Waste",
+                bg1: "#1a1a2e", bg2: "#16213e", 
+                accent: "#00ff9d", text: "#eafff5"
+            },
+            {
+                name: "Blueprint Azul",
+                bg1: "#001f3f", bg2: "#003366", 
+                accent: "#0074D9", text: "#ffffff"
+            }
+        ];
+        
+        return themes[Math.floor(Math.random() * themes.length)];
+    }
+
+    function applyPalette() {
+        const theme = getRandomTheme();
+        const root = document.documentElement;
+        
+        // Mostrar feedback en el botón
+        const originalText = paletteBtn.textContent;
+        paletteBtn.textContent = `🎨 Aplicado: ${theme.name}`;
+        setTimeout(() => paletteBtn.textContent = originalText, 1500);
+
+        // Definir variables
+        const props = {
+            '--bg-color-1': theme.bg1,
+            '--bg-color-2': theme.bg2,
+            '--accent-color': theme.accent,
+            '--accent-color-hover': theme.accent, // Simplificado
+            '--text-color': theme.text,
+            '--level-bg': `linear-gradient(90deg, ${theme.bg1}EE, ${theme.bg2}EE)`, // EE = alpha
+            '--border-color': `${theme.text}20`, // 20 = baja opacidad
+            '--entry-bg': `${theme.text}10`,
+            '--entry-hover-bg': `${theme.text}25`
+        };
+
+        // 1. Aplicar CSS Variables
+        for (const [key, value] of Object.entries(props)) {
+            root.style.setProperty(key, value);
+        }
+
+        // 2. Forzar repintado del body (Crucial)
+        document.body.style.background = `linear-gradient(135deg, ${theme.bg1} 0%, ${theme.bg2} 100%)`;
+        document.body.style.backgroundAttachment = 'fixed';
+    }
+
+    // --- GENERACIÓN IA ---
+    function populateStyles() {
+        imageStyles.forEach(style => {
+            const option = document.createElement('option');
+            option.value = style; option.textContent = style;
+            styleSelect.appendChild(option);
+        });
+    }
+
+    async function fetchText(prompt) {
+      const textModel = textModelSelect.value;
+      const apiKey = apiKeyInput.value.trim() || 'API_key';
+      const url = `https://enter.pollinations.ai/api/generate/text/${encodeURIComponent(prompt)}?key=${apiKey}&json=false&model=${textModel}`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error fetching text');
+        return await response.text();
+      } catch (error) { return "Error generando texto."; }
+    }
+    
+    async function generateVisualPrompt(title, theme, style, levelIndex) {
+        const mood = levelIndex > 3 ? "ominous, abstract, dark" : "clear, detailed";
+        const prompt = `Image prompt for "${title}" related to "${theme}". Style: ${style}. Mood: ${mood}. NO TEXT. Under 20 words. Return ONLY prompt.`;
+        const result = await fetchText(prompt);
+        return result.replace(/"/g, '').trim();
+    }
+    
+    function generateImageUrl(visualPrompt, model) {
+      const seed = Math.floor(Math.random() * 99999);
+      const size = model === 'gptimage' ? ',size="1024x1536"' : '&width=600&height=800';
+      const apiKey = apiKeyInput.value.trim() || 'API_key';
+      return `https://enter.pollinations.ai/api/generate/image/${encodeURIComponent(visualPrompt)}${size}?key=${apiKey}&nologo=true&seed=${seed}&model=${model}`;
+    }
+    
+    async function generateLevelTitlesBatch(theme, levelIndex, count) {
+      const desc = difficultyDescriptions[levelIndex];
+      const prompt = `Lista de ${count} títulos cortos y únicos para un iceberg sobre "${theme}". Nivel: ${levelNames[levelIndex]} (${desc}). Separados por "||". Ejemplo: A || B || C.`;
+      const rawText = await fetchText(prompt);
+      let titles = rawText.split('||').map(t => t.trim().replace(/^\d+\.\s*/, '').replace(/^- /, ''));
+      if (titles.length < count) titles = rawText.split('\n').filter(t => t.trim().length > 0).slice(0, count);
+      return titles.slice(0, count);
+    }
+    
+    async function generateEntryContent(title, theme) {
+        return await fetchText(`Explicación breve de "${title}" (Tema: ${theme}). 2 párrafos cortos. Markdown simple (**Negritas**).`);
+    }
+
+    // --- DOM LOGIC ---
+    function createLevelStructure(levelIndex, title) {
+        const div = document.createElement('div');
+        div.className = 'level';
+        div.style.animation = `fadeIn 0.5s ease forwards ${levelIndex * 0.2}s`;
+        div.innerHTML = `<h2 class="level-title">${title} <span class="level-desc-tag">Nivel ${levelIndex + 1}</span></h2>`;
+        const ul = document.createElement('ul');
+        ul.className = 'entries';
+        div.appendChild(ul);
+        return { container: div, list: ul };
+    }
+
+    function createEntry(title, content, visualPrompt, imageUrl, theme) {
+        const li = document.createElement('li');
+        li.className = 'entry-trigger';
+        li.textContent = title;
+        
+        const panelWrapper = document.createElement('li');
+        panelWrapper.className = 'panel-wrapper';
+
+        const panel = document.createElement('div');
+        panel.className = 'panel-content';
+        
+        const layout = document.createElement('div');
+        layout.className = 'content-layout';
+        
+        const imgSection = document.createElement('div');
+        imgSection.className = 'image-section';
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = title;
+        
+        const controls = document.createElement('div');
+        controls.className = 'controls-box';
+        controls.innerHTML = `<input value="${visualPrompt}"><button>🔄 Regenerar</button>`;
+        controls.querySelector('button').onclick = (e) => {
+            e.stopPropagation();
+            img.style.opacity = 0.5;
+            img.src = generateImageUrl(controls.querySelector('input').value, modelSelect.value);
+            img.onload = () => img.style.opacity = 1;
+        };
+        imgSection.append(img, controls);
+
+        const textSection = document.createElement('div');
+        textSection.className = 'text-section';
+        // Formato seguro de HTML
+        textSection.innerHTML = `<h3>${title}</h3>` + content.split('\n').filter(l=>l.trim()).map(p=>`<p>${p.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</p>`).join('');
+
+        layout.append(imgSection, textSection);
+        panel.appendChild(layout);
+        panelWrapper.appendChild(panel);
+
+        li.onclick = () => { li.classList.toggle('open'); panel.classList.toggle('active'); };
+        img.onclick = (e) => { e.stopPropagation(); modal.classList.add('active'); modalImg.src = img.src; };
+
+        return { trigger: li, content: panelWrapper };
+    }
+
+    async function generateIceberg() {
+        const theme = themeInput.value.trim();
+        if (!theme) return alert("¡Necesitas un tema!");
+        
+        icebergChart.innerHTML = ''; icebergChart.style.display = 'none';
+        loadingIndicator.style.display = 'block'; exportBtn.style.display = 'none';
+        generateBtn.disabled = true;
+        
+        const levels = parseInt(levelSelect.value);
+        
+        try {
+            for (let i = 0; i < levels; i++) {
+                progressText.textContent = `${Math.round((i/levels)*100)}% - Nivel ${i+1}...`;
+                const { container, list } = createLevelStructure(i, levelNames[i]);
+                icebergChart.appendChild(container); icebergChart.style.display = 'block';
+
+                const titles = await generateLevelTitlesBatch(theme, i, 3);
+                const entries = await Promise.all(titles.map(async title => {
+                    const [content, visual] = await Promise.all([
+                        generateEntryContent(title, theme),
+                        generateVisualPrompt(title, theme, styleSelect.value, i)
+                    ]);
+                    return createEntry(title, content, visual, generateImageUrl(visual, modelSelect.value), theme);
+                }));
+                entries.forEach(item => { list.appendChild(item.trigger); list.appendChild(item.content); });
+            }
+            loadingIndicator.style.display = 'none'; exportBtn.style.display = 'block';
+        } catch (e) { alert("Error de IA."); console.error(e); loadingIndicator.style.display = 'none'; } 
+        finally { generateBtn.disabled = false; }
+    }
+
+    async function toDataURL(url) {
+        try {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch { return ''; }
+    }
+
+    exportBtn.onclick = async () => {
+        exportBtn.textContent = "Procesando..."; exportBtn.disabled = true;
+        const clone = document.documentElement.cloneNode(true);
+        
+        // Limpieza de UI
+        ['.input-area', '.loading', '#exportBtn'].forEach(s => clone.querySelector(s)?.remove());
+        clone.querySelectorAll('script').forEach(s => s.remove());
+        clone.querySelectorAll('.controls-box').forEach(el => el.remove());
+
+        // Base64 Imágenes
+        const imgs = clone.querySelectorAll('img');
+        for (const img of imgs) if(img.src.startsWith('http')) img.src = await toDataURL(img.src);
+
+        // Script para el archivo descargado (Interacción)
+        const script = document.createElement('script');
+        script.textContent = `
+            document.querySelectorAll('.entry-trigger').forEach(li => {
+                li.onclick = () => {
+                    li.classList.toggle('open');
+                    li.nextElementSibling.querySelector('.panel-content').classList.toggle('active');
+                }
+            });
+            const modal = document.querySelector('.modal');
+            const modalImg = document.getElementById('modalImage');
+            document.querySelector('.modal-close').onclick = () => modal.classList.remove('active');
+            modal.onclick = (e) => { if(e.target === modal || e.target === modalImg) modal.classList.remove('active'); };
+            document.querySelectorAll('.panel-content img').forEach(img => {
+                img.onclick = (e) => { e.stopPropagation(); modal.classList.add('active'); modalImg.src = img.src; }
+            });
+        `;
+        clone.querySelector('body').appendChild(script);
+
+        const blob = new Blob([`<!DOCTYPE html>${clone.outerHTML}`], {type: 'text/html'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Iceberg_${themeInput.value.replace(/\s/g,'_')}.html`;
+        link.click();
+        exportBtn.textContent = "📥 Descargar Iceberg HTML"; exportBtn.disabled = false;
+    };
+
+    // Events
+    generateBtn.onclick = generateIceberg;
+    paletteBtn.onclick = applyPalette;
+    
+    // BYOP Flow
+    getApiKeyBtn.onclick = () => {
+        const redirectUrl = window.location.href.split('#')[0];
+        window.location.href = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(redirectUrl)}`;
+    };
+
+    apiKeyInput.oninput = () => {
+        localStorage.setItem('pollinations_api_key', apiKeyInput.value.trim());
+    };
+
+    closeBtn.onclick = () => modal.classList.remove('active');
+    modal.onclick = (e) => { if(e.target===modal || e.target===modalImg) modal.classList.remove('active'); };
+
+    // DOMContentLoaded logic for BYOP
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Load from localStorage
+        const storedKey = localStorage.getItem('pollinations_api_key');
+        if (storedKey) apiKeyInput.value = storedKey;
+
+        // 2. Capture from URL hash
+        const hashParams = new URLSearchParams(window.location.hash.slice(1));
+        const apiKey = hashParams.get('api_key');
+        if (apiKey) {
+            apiKeyInput.value = apiKey;
+            localStorage.setItem('pollinations_api_key', apiKey);
+            window.history.replaceState(null, null, window.location.pathname + window.location.search);
+            alert("¡API Key vinculada con éxito!");
+        }
+    });
+
+    // Init
+    populateStyles();
+    document.head.appendChild(document.createElement("style")).innerText = `@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`;
+  </script>
+</body>
+</html>
