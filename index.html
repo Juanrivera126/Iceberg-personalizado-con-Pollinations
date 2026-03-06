@@ -239,28 +239,64 @@
     .controls-box { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 10px; }
     .controls-box input { width: 100%; margin-bottom: 5px; }
 
+    /* --- LANGUAGE SELECTOR --- */
+    .language-selector {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+    }
+
+    .language-selector select {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: rgba(0,0,0,0.6);
+        color: var(--text-color);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .language-selector select:hover {
+        background: rgba(0,0,0,0.8);
+        border-color: var(--accent-color);
+    }
+
     /* --- MOBILE OPTIMIZATIONS --- */
     @media (max-width: 600px) {
         .container { padding: 10px; }
         .level { padding: 15px 10px; }
         .entries { grid-template-columns: 1fr; }
         .content-layout { flex-direction: column; }
+        .language-selector {
+            position: static;
+            margin: 10px auto;
+            text-align: center;
+        }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Generador de Iceberg Pro</h1>
+    <div class="language-selector">
+      <select id="languageSelect">
+        <option value="es">🇪🇸 Español</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="fr">🇫🇷 Français</option>
+      </select>
+    </div>
+    <h1 data-i18n="title">Generador de Iceberg Pro</h1>
     
     <div class="input-area">
       <div class="input-group">
-        <label for="themeInput">Tema Central</label>
+        <label for="themeInput" data-i18n="centralTheme">Tema Central</label>
         <div style="display: flex; width: 100%; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="themeInput" placeholder="Ej: Teoría de Internet Muerta, Biología Marina..." style="flex: 1; min-width: 200px;">
+            <input type="text" id="themeInput" data-i18n-placeholder="themePlaceholder" placeholder="Ej: Teoría de Internet Muerta, Biología Marina..." style="flex: 1; min-width: 200px;">
             <div class="api-key-container" style="display: flex; gap: 5px; flex: 1; min-width: 280px;">
                 <input type="password" id="apiKeyInput" placeholder="API Key (plln_sk_...)" style="flex: 1;">
-                <button id="getApiKeyBtn" title="Obtener API Key automáticamente" style="width: auto; padding: 10px 15px; margin: 0; font-size: 0.9rem; white-space: nowrap;">
-                    🔑 Obtener
+                <button id="getApiKeyBtn" data-i18n-title="getApiKeyTitle" title="Obtener API Key automáticamente" style="width: auto; padding: 10px 15px; margin: 0; font-size: 0.9rem; white-space: nowrap;">
+                    <span data-i18n="getApiKey">🔑 Obtener</span>
                 </button>
             </div>
         </div>
@@ -268,12 +304,12 @@
       
       <div class="input-row">
           <div class="input-group">
-            <label for="styleSelect">Estilo Visual</label>
+            <label for="styleSelect" data-i18n="visualStyle">Estilo Visual</label>
             <select id="styleSelect"></select>
           </div>
 
           <div class="input-group">
-            <label for="textModelSelect">IA de Texto</label>
+            <label for="textModelSelect" data-i18n="textAI">IA de Texto</label>
             <select id="textModelSelect">
                 <option value="gemini-search">Gemini 2.5 (Google Search)</option>
                 <option value="openai">GPT-5 Nano</option>
@@ -290,7 +326,7 @@
 
       <div class="input-row">
           <div class="input-group">
-            <label for="modelSelect">IA de Imagen</label>
+            <label for="modelSelect" data-i18n="imageAI">IA de Imagen</label>
             <select id="modelSelect">
                 <option value="flux" selected>Flux</option>
                 <option value="zimage">Z Image</option>
@@ -305,28 +341,28 @@
           </div>
 
           <div class="input-group">
-            <label for="levelSelect">Profundidad</label>
+            <label for="levelSelect" data-i18n="depth">Profundidad</label>
             <select id="levelSelect">
-                <option value="3">3 Niveles (Rápido)</option>
-                <option value="4">4 Niveles (Estándar)</option>
-                <option value="5" selected>5 Niveles (Completo)</option>
+                <option value="3" data-i18n="levels3">3 Niveles (Rápido)</option>
+                <option value="4" data-i18n="levels4">4 Niveles (Estándar)</option>
+                <option value="5" selected data-i18n="levels5">5 Niveles (Completo)</option>
             </select>
           </div>
       </div>
       
-      <button type="button" id="paletteBtn" class="secondary-btn">🎨 Cambiar Paleta de Colores (Sorpréndeme)</button>
-      <button id="generateBtn">🔮 Generar Iceberg</button>
+      <button type="button" id="paletteBtn" class="secondary-btn" data-i18n="changePalette">🎨 Cambiar Paleta de Colores (Sorpréndeme)</button>
+      <button id="generateBtn" data-i18n="generateBtn">🔮 Generar Iceberg</button>
     </div>
     
     <div class="loading" id="loadingIndicator">
       <div class="loading-spinner"></div>
-      <p id="loadingText">Iniciando análisis del tema...</p>
-      <div class="progress-text" id="progressText">0% completado</div>
+      <p id="loadingText" data-i18n="loadingText">Iniciando análisis del tema...</p>
+      <div class="progress-text" id="progressText"><span data-i18n="completed">completado</span></div>
     </div>
     
     <div class="iceberg-chart" id="icebergChart"></div>
     
-    <button class="export-btn" id="exportBtn">📥 Descargar Iceberg HTML</button>
+    <button class="export-btn" id="exportBtn" data-i18n="exportBtn">📥 Descargar Iceberg HTML</button>
   </div>
 
   <div class="modal" id="imageModal">
@@ -335,6 +371,164 @@
   </div>
 
   <script>
+    // --- SISTEMA DE TRADUCCIONES ---
+    const translations = {
+        es: {
+            title: "Generador de Iceberg Pro",
+            centralTheme: "Tema Central",
+            themePlaceholder: "Ej: Teoría de Internet Muerta, Biología Marina...",
+            getApiKey: "🔑 Obtener",
+            getApiKeyTitle: "Obtener API Key automáticamente",
+            visualStyle: "Estilo Visual",
+            textAI: "IA de Texto",
+            imageAI: "IA de Imagen",
+            depth: "Profundidad",
+            levels3: "3 Niveles (Rápido)",
+            levels4: "4 Niveles (Estándar)",
+            levels5: "5 Niveles (Completo)",
+            changePalette: "🎨 Cambiar Paleta de Colores (Sorpréndeme)",
+            generateBtn: "🔮 Generar Iceberg",
+            loadingText: "Iniciando análisis del tema...",
+            completed: "completado",
+            exportBtn: "📥 Descargar Iceberg HTML",
+            processing: "Procesando...",
+            regenerate: "🔄 Regenerar",
+            needTheme: "¡Necesitas un tema!",
+            aiError: "Error de IA.",
+            apiKeySuccess: "¡API Key vinculada con éxito!",
+            paletteApplied: "🎨 Aplicado:",
+            levelNames: [
+                "Nivel 1: La Superficie",
+                "Nivel 2: Aguas Poco Profundas",
+                "Nivel 3: La Zona de Penumbra",
+                "Nivel 4: El Abismo",
+                "Nivel 5: El Vacío Insondable"
+            ],
+            difficultyDescriptions: [
+                "Cultura pop, memes, hechos oficiales.",
+                "Datos curiosos, trivia técnica.",
+                "Rumores, conspiraciones leves.",
+                "Archivos perdidos, incidentes oscuros.",
+                "Horror cósmico, metafísica."
+            ]
+        },
+        en: {
+            title: "Iceberg Generator Pro",
+            centralTheme: "Central Theme",
+            themePlaceholder: "Ex: Dead Internet Theory, Marine Biology...",
+            getApiKey: "🔑 Get",
+            getApiKeyTitle: "Get API Key automatically",
+            visualStyle: "Visual Style",
+            textAI: "Text AI",
+            imageAI: "Image AI",
+            depth: "Depth",
+            levels3: "3 Levels (Fast)",
+            levels4: "4 Levels (Standard)",
+            levels5: "5 Levels (Complete)",
+            changePalette: "🎨 Change Color Palette (Surprise Me)",
+            generateBtn: "🔮 Generate Iceberg",
+            loadingText: "Starting theme analysis...",
+            completed: "completed",
+            exportBtn: "📥 Download Iceberg HTML",
+            processing: "Processing...",
+            regenerate: "🔄 Regenerate",
+            needTheme: "You need a theme!",
+            aiError: "AI Error.",
+            apiKeySuccess: "API Key successfully linked!",
+            paletteApplied: "🎨 Applied:",
+            levelNames: [
+                "Level 1: The Surface",
+                "Level 2: Shallow Waters",
+                "Level 3: The Twilight Zone",
+                "Level 4: The Abyss",
+                "Level 5: The Unfathomable Void"
+            ],
+            difficultyDescriptions: [
+                "Pop culture, memes, official facts.",
+                "Fun facts, technical trivia.",
+                "Rumors, mild conspiracies.",
+                "Lost archives, dark incidents.",
+                "Cosmic horror, metaphysics."
+            ]
+        },
+        fr: {
+            title: "Générateur d'Iceberg Pro",
+            centralTheme: "Thème Central",
+            themePlaceholder: "Ex: Théorie d'Internet Mort, Biologie Marine...",
+            getApiKey: "🔑 Obtenir",
+            getApiKeyTitle: "Obtenir la clé API automatiquement",
+            visualStyle: "Style Visuel",
+            textAI: "IA de Texte",
+            imageAI: "IA d'Image",
+            depth: "Profondeur",
+            levels3: "3 Niveaux (Rapide)",
+            levels4: "4 Niveaux (Standard)",
+            levels5: "5 Niveaux (Complet)",
+            changePalette: "🎨 Changer la Palette de Couleurs (Surprends-moi)",
+            generateBtn: "🔮 Générer l'Iceberg",
+            loadingText: "Démarrage de l'analyse du thème...",
+            completed: "terminé",
+            exportBtn: "📥 Télécharger l'Iceberg HTML",
+            processing: "Traitement...",
+            regenerate: "🔄 Régénérer",
+            needTheme: "Vous avez besoin d'un thème!",
+            aiError: "Erreur d'IA.",
+            apiKeySuccess: "Clé API liée avec succès!",
+            paletteApplied: "🎨 Appliqué:",
+            levelNames: [
+                "Niveau 1: La Surface",
+                "Niveau 2: Eaux Peu Profondes",
+                "Niveau 3: La Zone Crépusculaire",
+                "Niveau 4: L'Abîme",
+                "Niveau 5: Le Vide Insondable"
+            ],
+            difficultyDescriptions: [
+                "Culture pop, mèmes, faits officiels.",
+                "Faits amusants, trivia technique.",
+                "Rumeurs, conspirations légères.",
+                "Archives perdues, incidents sombres.",
+                "Horreur cosmique, métaphysique."
+            ]
+        }
+    };
+
+    let currentLanguage = localStorage.getItem('iceberg_language') || 'es';
+
+    function translatePage() {
+        const lang = translations[currentLanguage];
+        
+        // Traducir elementos con data-i18n
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (lang[key]) {
+                el.textContent = lang[key];
+            }
+        });
+
+        // Traducir placeholders
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (lang[key]) {
+                el.placeholder = lang[key];
+            }
+        });
+
+        // Traducir titles
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            if (lang[key]) {
+                el.title = lang[key];
+            }
+        });
+
+        // Actualizar arrays globales
+        levelNames = lang.levelNames;
+        difficultyDescriptions = lang.difficultyDescriptions;
+
+        // Actualizar el atributo lang del HTML
+        document.documentElement.lang = currentLanguage;
+    }
+
     // --- VARIABLES & SELECTORES ---
     const themeInput = document.getElementById('themeInput');
     const apiKeyInput = document.getElementById('apiKeyInput');
@@ -353,9 +547,10 @@
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const closeBtn = document.querySelector('.modal-close');
+    const languageSelect = document.getElementById('languageSelect');
     
-    const levelNames = [ "Nivel 1: La Superficie", "Nivel 2: Aguas Poco Profundas", "Nivel 3: La Zona de Penumbra", "Nivel 4: El Abismo", "Nivel 5: El Vacío Insondable" ];
-    const difficultyDescriptions = [ "Cultura pop, memes, hechos oficiales.", "Datos curiosos, trivia técnica.", "Rumores, conspiraciones leves.", "Archivos perdidos, incidentes oscuros.", "Horror cósmico, metafísica." ];
+    let levelNames = [ "Nivel 1: La Superficie", "Nivel 2: Aguas Poco Profundas", "Nivel 3: La Zona de Penumbra", "Nivel 4: El Abismo", "Nivel 5: El Vacío Insondable" ];
+    let difficultyDescriptions = [ "Cultura pop, memes, hechos oficiales.", "Datos curiosos, trivia técnica.", "Rumores, conspiraciones leves.", "Archivos perdidos, incidentes oscuros.", "Horror cósmico, metafísica." ];
     const imageStyles = [ "Cinemático Fotorrealista", "Arte Conceptual Digital", "Horror Análogo (VHS)", "Ilustración Científica Vintage", "Cyberpunk Neón", "Pintura al Óleo Oscura", "Surrealismo Onírico", "Render 3D Hiperrealista", "Estilo Anime Dark Fantasy", "Pixel Art Retro", "Estilo Lovecraftiano" ];
 
     // --- MOTOR DE TEMAS AVANZADO (NUEVA LÓGICA) ---
@@ -412,7 +607,8 @@
         
         // Mostrar feedback en el botón
         const originalText = paletteBtn.textContent;
-        paletteBtn.textContent = `🎨 Aplicado: ${theme.name}`;
+        const lang = translations[currentLanguage];
+        paletteBtn.textContent = `${lang.paletteApplied} ${theme.name}`;
         setTimeout(() => paletteBtn.textContent = originalText, 1500);
 
         // Definir variables
@@ -460,7 +656,15 @@
     
     async function generateVisualPrompt(title, theme, style, levelIndex) {
         const mood = levelIndex > 3 ? "ominous, abstract, dark" : "clear, detailed";
-        const prompt = `Image prompt for "${title}" related to "${theme}". Style: ${style}. Mood: ${mood}. NO TEXT. Under 20 words. Return ONLY prompt.`;
+        
+        // Prompts específicos por idioma para generar el prompt visual
+        const prompts = {
+          es: `Prompt de imagen para "${title}" relacionado con "${theme}". Estilo: ${style}. Ambiente: ${mood}. SIN TEXTO. Máximo 20 palabras. Devuelve SOLO el prompt en inglés para el generador de imágenes.`,
+          en: `Image prompt for "${title}" related to "${theme}". Style: ${style}. Mood: ${mood}. NO TEXT. Under 20 words. Return ONLY the prompt in English for the image generator.`,
+          fr: `Prompt d'image pour "${title}" lié à "${theme}". Style: ${style}. Ambiance: ${mood}. SANS TEXTE. Maximum 20 mots. Retournez UNIQUEMENT le prompt en anglais pour le générateur d'images.`
+        };
+        
+        const prompt = prompts[currentLanguage];
         const result = await fetchText(prompt);
         return result.replace(/"/g, '').trim();
     }
@@ -474,7 +678,16 @@
     
     async function generateLevelTitlesBatch(theme, levelIndex, count) {
       const desc = difficultyDescriptions[levelIndex];
-      const prompt = `Lista de ${count} títulos cortos y únicos para un iceberg sobre "${theme}". Nivel: ${levelNames[levelIndex]} (${desc}). Separados por "||". Ejemplo: A || B || C.`;
+      const lang = translations[currentLanguage];
+      
+      // Prompts específicos por idioma
+      const prompts = {
+        es: `Lista de ${count} títulos cortos y únicos para un iceberg sobre "${theme}". Nivel: ${levelNames[levelIndex]} (${desc}). Separados por "||". Ejemplo: A || B || C. Responde en español.`,
+        en: `List of ${count} short and unique titles for an iceberg about "${theme}". Level: ${levelNames[levelIndex]} (${desc}). Separated by "||". Example: A || B || C. Respond in English.`,
+        fr: `Liste de ${count} titres courts et uniques pour un iceberg sur "${theme}". Niveau: ${levelNames[levelIndex]} (${desc}). Séparés par "||". Exemple: A || B || C. Répondez en français.`
+      };
+      
+      const prompt = prompts[currentLanguage];
       const rawText = await fetchText(prompt);
       let titles = rawText.split('||').map(t => t.trim().replace(/^\d+\.\s*/, '').replace(/^- /, ''));
       if (titles.length < count) titles = rawText.split('\n').filter(t => t.trim().length > 0).slice(0, count);
@@ -482,7 +695,14 @@
     }
     
     async function generateEntryContent(title, theme) {
-        return await fetchText(`Explicación breve de "${title}" (Tema: ${theme}). 2 párrafos cortos. Markdown simple (**Negritas**).`);
+        // Prompts específicos por idioma
+        const prompts = {
+          es: `Explicación breve de "${title}" (Tema: ${theme}). 2 párrafos cortos. Markdown simple (**Negritas**). Responde en español.`,
+          en: `Brief explanation of "${title}" (Theme: ${theme}). 2 short paragraphs. Simple Markdown (**Bold**). Respond in English.`,
+          fr: `Explication brève de "${title}" (Thème: ${theme}). 2 courts paragraphes. Markdown simple (**Gras**). Répondez en français.`
+        };
+        
+        return await fetchText(prompts[currentLanguage]);
     }
 
     // --- DOM LOGIC ---
@@ -519,7 +739,8 @@
         
         const controls = document.createElement('div');
         controls.className = 'controls-box';
-        controls.innerHTML = `<input value="${visualPrompt}"><button>🔄 Regenerar</button>`;
+        const lang = translations[currentLanguage];
+        controls.innerHTML = `<input value="${visualPrompt}"><button>${lang.regenerate}</button>`;
         controls.querySelector('button').onclick = (e) => {
             e.stopPropagation();
             img.style.opacity = 0.5;
@@ -545,7 +766,8 @@
 
     async function generateIceberg() {
         const theme = themeInput.value.trim();
-        if (!theme) return alert("¡Necesitas un tema!");
+        const lang = translations[currentLanguage];
+        if (!theme) return alert(lang.needTheme);
         
         icebergChart.innerHTML = ''; icebergChart.style.display = 'none';
         loadingIndicator.style.display = 'block'; exportBtn.style.display = 'none';
@@ -555,7 +777,7 @@
         
         try {
             for (let i = 0; i < levels; i++) {
-                progressText.textContent = `${Math.round((i/levels)*100)}% - Nivel ${i+1}...`;
+                progressText.textContent = `${Math.round((i/levels)*100)}% - ${lang.levelNames[i]}...`;
                 const { container, list } = createLevelStructure(i, levelNames[i]);
                 icebergChart.appendChild(container); icebergChart.style.display = 'block';
 
@@ -570,7 +792,7 @@
                 entries.forEach(item => { list.appendChild(item.trigger); list.appendChild(item.content); });
             }
             loadingIndicator.style.display = 'none'; exportBtn.style.display = 'block';
-        } catch (e) { alert("Error de IA."); console.error(e); loadingIndicator.style.display = 'none'; } 
+        } catch (e) { alert(lang.aiError); console.error(e); loadingIndicator.style.display = 'none'; } 
         finally { generateBtn.disabled = false; }
     }
 
@@ -587,7 +809,8 @@
     }
 
     exportBtn.onclick = async () => {
-        exportBtn.textContent = "Procesando..."; exportBtn.disabled = true;
+        const lang = translations[currentLanguage];
+        exportBtn.textContent = lang.processing; exportBtn.disabled = true;
         const clone = document.documentElement.cloneNode(true);
         
         // Limpieza de UI
@@ -623,12 +846,20 @@
         link.href = URL.createObjectURL(blob);
         link.download = `Iceberg_${themeInput.value.replace(/\s/g,'_')}.html`;
         link.click();
-        exportBtn.textContent = "📥 Descargar Iceberg HTML"; exportBtn.disabled = false;
+        exportBtn.textContent = lang.exportBtn; exportBtn.disabled = false;
     };
 
     // Events
     generateBtn.onclick = generateIceberg;
     paletteBtn.onclick = applyPalette;
+    
+    // Language selector
+    languageSelect.value = currentLanguage;
+    languageSelect.onchange = () => {
+        currentLanguage = languageSelect.value;
+        localStorage.setItem('iceberg_language', currentLanguage);
+        translatePage();
+    };
     
     // BYOP Flow
     getApiKeyBtn.onclick = () => {
@@ -645,6 +876,9 @@
 
     // DOMContentLoaded logic for BYOP
     document.addEventListener('DOMContentLoaded', () => {
+        // Traducir la página al cargar
+        translatePage();
+        
         // 1. Load from localStorage
         const storedKey = localStorage.getItem('pollinations_api_key');
         if (storedKey) apiKeyInput.value = storedKey;
@@ -656,7 +890,8 @@
             apiKeyInput.value = apiKey;
             localStorage.setItem('pollinations_api_key', apiKey);
             window.history.replaceState(null, null, window.location.pathname + window.location.search);
-            alert("¡API Key vinculada con éxito!");
+            const lang = translations[currentLanguage];
+            alert(lang.apiKeySuccess);
         }
     });
 
